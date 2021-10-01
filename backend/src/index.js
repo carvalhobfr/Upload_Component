@@ -1,10 +1,32 @@
-const express = require('express');
-const morgan = require('morgan');
+require("dotenv").config();
+
+const express = require("express");
+const morgan = require("morgan");
+const mongoose = require("mongoose");
+const path = require("path");
+const cors = require("cors");
+
 const app = express();
 
-app.use(express.json()); // serve para o express trabalhar com o json
-app.use(express.urlencoded({ extended: true })); //faz com que o express trabalhe com o a requisição na url encoded
-app.use(morgan('dev'));
+/**
+ * Database setup
+ */
+mongoose.connect(
+  process.env.MONGO_URL,
+  {
+    useNewUrlParser: true
+  }
+);
 
-app.use(require('./routes'));
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
+app.use(
+  "/files",
+  express.static(path.resolve(__dirname, "..", "tmp", "uploads"))
+);
+
+app.use(require("./routes"));
+
 app.listen(3000);
